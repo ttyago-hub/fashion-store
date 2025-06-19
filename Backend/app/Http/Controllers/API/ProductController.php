@@ -24,16 +24,29 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'category' => 'required|string',
-            'stock' => 'required|integer',
-            'price' => 'required|numeric',
-        ]);
+        'name' => 'required',
+        'category' => 'required',
+        'price' => 'required|numeric',
+        'stock' => 'required|integer',
+        'description' => 'nullable',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+    $imagePath = null;
 
-        $product = Product::create($request->all());
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('products', 'public');
+    }
 
-        return response()->json($product, 201);
+        $product = Product::create([
+        'name' => $request->name,
+        'category' => $request->category,
+        'price' => $request->price,
+        'stock' => $request->stock,
+        'description' => $request->description,
+        'image' => $imagePath
+    ]);
+
+        return response()->json($product, 201); 
     }
 
     // Actualizar producto

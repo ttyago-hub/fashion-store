@@ -1,85 +1,98 @@
 <template>
-  <div class="max-w-xl mx-auto p-4">
-    <h2 class="text-2xl font-bold mb-4">Apartar producto</h2>
+  <div>
+    <h2>Apartar producto</h2>
 
-    <div class="mb-4">
-      <label class="block mb-1">Producto:</label>
-      <select v-model="reservation.product_id" class="w-full p-2 border">
-        <option disabled value="">-- Selecciona un producto --</option>
-        <option v-for="product in products" :key="product.id" :value="product.id">
-          {{ product.name }} (Stock: {{ product.stock }})
-        </option>
-      </select>
+    <div v-if="product">
+      <p><strong>Producto:</strong> {{ product.name }}</p>
+      <p><strong>Precio:</strong> ${{ product.price }}</p>
+      <p><strong>Stock disponible:</strong> {{ product.stock }}</p>
+
+      <form @submit.prevent="submitReservation">
+        <label>Cantidad:</label>
+        <input type="number" v-model.number="quantity" min="1" :max="product.stock" required />
+
+        <label>Tipo de entrega:</label>
+        <select v-model="deliveryType" required>
+          <option value="">Selecciona una opción</option>
+          <option value="pickup">Retiro en tienda</option>
+          <option value="delivery">Entrega a domicilio</option>
+        </select>
+
+        <div v-if="deliveryType === 'delivery'">
+          <label>Dirección de entrega:</label>
+          <input v-model="deliveryAddress" placeholder="Calle principal, número, ciudad..." required />
+        </div>
+
+        <button type="submit">Confirmar apartado</button>
+      </form>
     </div>
-
-    <div class="mb-4">
-      <label class="block mb-1">Cantidad:</label>
-      <input v-model.number="reservation.quantity" type="number" min="1" class="w-full p-2 border" />
-    </div>
-
-    <div class="mb-4">
-      <label class="block mb-1">Tipo de entrega:</label>
-      <select v-model="reservation.type" class="w-full p-2 border">
-        <option value="retiro">Retiro en tienda</option>
-        <option value="domicilio">Envío a domicilio</option>
-      </select>
-    </div>
-
-    <div v-if="reservation.type === 'domicilio'" class="mb-4">
-      <label class="block mb-1">Dirección de envío:</label>
-      <textarea v-model="reservation.delivery_address" class="w-full p-2 border"></textarea>
-    </div>
-
-    <button @click="submitReservation" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      Confirmar Apartado
-    </button>
-
-    <div v-if="responseMessage" class="mt-4 p-4 bg-green-100 text-green-700 rounded">
-      {{ responseMessage }}
-      <div v-if="pickupCode">
-        <strong>Código de retiro:</strong> {{ pickupCode }}
-      </div>
+    <div v-else>
+      <p>Cargando información del producto...</p>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import axios from '../axios';
-import { useAuthStore } from '../store/auth';
+<script>
+import api from '../axios'
 
-const auth = useAuthStore();
+export default {
+  data() {
+    return {
+      product: null,
+      quantity: 1,
+      deliveryType: '',
+      deliveryAddress: ''
+    }
+  },
+  methods: {
+    async fetchProduct() {
+      const productId = this.$route.query.productId
+      try {
+        const response = await api.get(`/products/${productId}`)
+        this.product = response.data
+      } catch (error) {
+        console.error('Error cargando producto:', error)
+      }
+    },
+    async submitReservation() {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        alert('Debes iniciar sesión para apartar productos')
+        this.$router.push('/login')
+        return
+      }
 
-const products = ref([]);
-const reservation = ref({
-  product_id: '',
-  quantity: 1,
-  type: 'retiro',
-  delivery_address: ''
-});
+      try {
+        const response = await api.post(
+          '/reserve',
+          {
+            product_id: this.product.id,
+            quantity: this.quantity,
+            delivery_type: this.deliveryType,
+            delivery_address: this.deliveryType === 'delivery' ? this.deliveryAddress : null
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
 
-const responseMessage = ref('');
-const pickupCode = ref('');
+        if (this.deliveryType === 'pickup') {
+          alert(`Reserva confirmada. Tu código de retiro es: ${response.data.delivery_code}`)
+        } else {
+          alert('Reserva confirmada. Recibirás los productos en tu domicilio.')
+        }
 
-const fetchProducts = async () => {
-  const res = await axios.get('/products');
-  products.value = res.data;
-};
-
-const submitReservation = async () => {
-  try {
-    const res = await axios.post('/reserve', reservation.value, {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    });
-    responseMessage.value = res.data.message;
-    pickupCode.value = res.data.codigo || '';
-  } catch (error) {
-    responseMessage.value = 'Error al apartar el producto.';
+        this.$router.push('/')
+      } catch (error) {
+        console.error(error.response?.data || error.message)
+        alert('Error al realizar la reserva')
+      }
+    }
+  },
+  mounted() {
+    this.fetchProduct()
   }
-};
-
-onMounted(() => {
-  fetchProducts();
-});
+}
 </script>
-

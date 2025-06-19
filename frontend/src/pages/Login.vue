@@ -1,34 +1,49 @@
 <template>
-  <div class="p-4">
-    <h2 class="text-xl font-bold">Login</h2>
+  <div>
+    <h2>Iniciar sesión</h2>
     <form @submit.prevent="login">
-      <input v-model="email" placeholder="Email" class="border p-2 mb-2 block" />
-      <input v-model="password" type="password" placeholder="Password" class="border p-2 mb-2 block" />
-      <button class="bg-blue-500 text-white px-4 py-2">Entrar</button>
+      <input v-model="email" type="email" placeholder="Correo electrónico" />
+      <input v-model="password" type="password" placeholder="Contraseña" />
+      <button type="submit">Iniciar sesión</button>
     </form>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import axios from '../axios'
-import { useRouter } from 'vue-router'
+<script>
+import api from '../axios'
 
-const email = ref('')
-const password = ref('')
-const router = useRouter()
+export default {
+  data() {
+    return {
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    async login() {
+      try {
+        const response = await api.post('/login', {
+          email: this.email,
+          password: this.password
+        })
 
-const login = async () => {
-  try {
-    const res = await axios.post('/login', {
-      email: email.value,
-      password: password.value
-    })
-    localStorage.setItem('token', res.data.token)
-    console.log('✅ Login correcto', res.data)
-    router.push('/products')
-  } catch (err) {
-    console.error('❌ Error de login', err)
+        // Guardar token o datos en localStorage si es necesario
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.token)
+
+        alert('Bienvenido ' + response.data.user.name)
+
+        if (response.data.user.role === 'admin') {
+          this.$router.push('/inventory')
+        } else {
+          this.$router.push('/')
+        }
+
+      } catch (error) {
+        alert('Error al iniciar sesión')
+        console.error(error.response?.data || error.message)
+      }
+    }
   }
 }
 </script>
