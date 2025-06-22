@@ -4,7 +4,7 @@
       <li><router-link to="/">Inicio</router-link></li>
 
       <li v-if="user && user.role === 'user'">
-        <router-link to="/reserve">Mis Reservas</router-link>
+        <router-link to="/reservation">Mis Reservas</router-link>
       </li>
 
       <li v-if="user && user.role === 'admin'">
@@ -13,8 +13,8 @@
       </li>
 
       <li v-if="!user">
-        <router-link to="/login">Iniciar sesión</router-link>
-        <router-link to="/register">Registrarse</router-link>
+        <router-link to="/login"> Iniciar sesión</router-link>
+        <router-link to="/register"> Registrarse</router-link>
       </li>
 
       <li v-if="user">

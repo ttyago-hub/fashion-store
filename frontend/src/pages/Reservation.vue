@@ -1,98 +1,111 @@
 <template>
-  <div>
+  <div class="reservation-container">
     <h2>Apartar producto</h2>
 
-    <div v-if="product">
+    <div v-if="product" class="product-info">
       <p><strong>Producto:</strong> {{ product.name }}</p>
-      <p><strong>Precio:</strong> ${{ product.price }}</p>
+      <p><strong>Precio:</strong> ${{ product.price.toFixed(2) }}</p>
       <p><strong>Stock disponible:</strong> {{ product.stock }}</p>
 
-      <form @submit.prevent="submitReservation">
-        <label>Cantidad:</label>
-        <input type="number" v-model.number="quantity" min="1" :max="product.stock" required />
+      <form @submit.prevent="submitReservation" class="reservation-form">
+        <label for="quantity">Cantidad:</label>
+        <input
+          id="quantity"
+          type="number"
+          v-model.number="quantity"
+          min="1"
+          :max="product.stock"
+          required
+        />
 
-        <label>Tipo de entrega:</label>
-        <select v-model="deliveryType" required>
+        <label for="deliveryType">Tipo de entrega:</label>
+        <select id="deliveryType" v-model="deliveryType" required>
           <option value="">Selecciona una opción</option>
           <option value="pickup">Retiro en tienda</option>
           <option value="delivery">Entrega a domicilio</option>
         </select>
 
         <div v-if="deliveryType === 'delivery'">
-          <label>Dirección de entrega:</label>
-          <input v-model="deliveryAddress" placeholder="Calle principal, número, ciudad..." required />
+          <label for="address">Dirección de entrega:</label>
+          <input
+            id="address"
+            v-model="deliveryAddress"
+            placeholder="Calle principal, número, ciudad..."
+            required
+          />
         </div>
 
         <button type="submit">Confirmar apartado</button>
       </form>
     </div>
+
     <div v-else>
       <p>Cargando información del producto...</p>
     </div>
   </div>
 </template>
 
-<script>
-import api from '../axios'
-
-export default {
-  data() {
-    return {
-      product: null,
-      quantity: 1,
-      deliveryType: '',
-      deliveryAddress: ''
-    }
-  },
-  methods: {
-    async fetchProduct() {
-      const productId = this.$route.query.productId
-      try {
-        const response = await api.get(`/products/${productId}`)
-        this.product = response.data
-      } catch (error) {
-        console.error('Error cargando producto:', error)
-      }
-    },
-    async submitReservation() {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        alert('Debes iniciar sesión para apartar productos')
-        this.$router.push('/login')
-        return
-      }
-
-      try {
-        const response = await api.post(
-          '/reserve',
-          {
-            product_id: this.product.id,
-            quantity: this.quantity,
-            delivery_type: this.deliveryType,
-            delivery_address: this.deliveryType === 'delivery' ? this.deliveryAddress : null
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-
-        if (this.deliveryType === 'pickup') {
-          alert(`Reserva confirmada. Tu código de retiro es: ${response.data.delivery_code}`)
-        } else {
-          alert('Reserva confirmada. Recibirás los productos en tu domicilio.')
-        }
-
-        this.$router.push('/')
-      } catch (error) {
-        console.error(error.response?.data || error.message)
-        alert('Error al realizar la reserva')
-      }
-    }
-  },
-  mounted() {
-    this.fetchProduct()
-  }
+<style scoped>
+.reservation-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
 }
-</script>
+
+h2 {
+  color: #4f46e5;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.product-info p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+
+.reservation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+label {
+  font-weight: bold;
+  color: #374151;
+}
+
+input,
+select {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+button {
+  padding: 0.75rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #4338ca;
+}
+</style>

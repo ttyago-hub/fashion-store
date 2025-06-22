@@ -9,12 +9,7 @@ console.log('✅ App.vue montado correctamente')
     <NavBar />
 
     <header>
-      <a href="https://vite.dev" target="_blank">
-        <img src="/vite.svg" class="logo" alt="Vite logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
+      
     </header>
 
     <!-- Aquí se mostrarán tus páginas -->
@@ -24,16 +19,21 @@ console.log('✅ App.vue montado correctamente')
 
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.navbar {
+  background-color: #4f46e5;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.brand {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.main-content {
+  padding: 2rem;
+  background-color: #f3f4f6;
+  min-height: 100vh;
 }
 </style>
