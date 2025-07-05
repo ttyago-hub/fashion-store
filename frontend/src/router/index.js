@@ -5,6 +5,8 @@ import Register from '../pages/Register.vue';
 import Products from '../pages/Products.vue';
 import Reservation from '../pages/Reservation.vue';
 import AdminDashboard from '../pages/AdminDashboard.vue';
+import ForgotPassword from '../pages/ForgotPassword.vue';
+import ResetPassword from '../pages/ResetPassword.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -13,6 +15,14 @@ const routes = [
   { path: '/products', component: Products },
   { path: '/reserve', component: Reservation, meta: { requiresAuth: true, role: 'user' } },
   { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 'admin' } },
+  {
+    path: '/users',
+    component: () => import('../pages/UserManagement.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {  path: '/forgot-password',  component: ForgotPassword},
+  {  path: '/reset-password',  component: ResetPassword}
+
 ];
 
 

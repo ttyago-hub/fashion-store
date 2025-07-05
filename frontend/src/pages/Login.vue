@@ -5,6 +5,11 @@
       <form @submit.prevent="login">
         <input v-model="email" type="email" placeholder="Correo electrónico" required />
         <input v-model="password" type="password" placeholder="Contraseña" required />
+
+        <router-link to="/forgot-password" class="forgot-link">
+          ¿Olvidaste tu contraseña?
+        </router-link>
+
         <button type="submit">Entrar</button>
       </form>
     </div>
@@ -13,6 +18,7 @@
 
 <script>
 import api from '../axios'
+import { useAuthStore } from '../store/auth'
 
 export default {
   data() {
@@ -29,20 +35,18 @@ export default {
           password: this.password
         })
 
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        localStorage.setItem('token', response.data.token)
-
-        // Configurar token en axios para futuras peticiones
-        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+        const auth = useAuthStore()
+        auth.setUser(response.data.user)
+        auth.setToken(response.data.token)
 
         alert('Bienvenido ' + response.data.user.name)
 
         // Redireccionar según rol
         const role = response.data.user.role
         if (role === 'admin') {
-          this.$router.push('/admin/dashboard')
+          this.$router.push('/admin')
         } else {
-          this.$router.push('/user/dashboard')
+          this.$router.push('/user')
         }
 
       } catch (error) {
@@ -66,6 +70,12 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+   /* Fondo con logo */
+  background-image: url('public/descarga (1).jpeg');  /* Ajusta la ruta si es otra */
+  background-repeat: no-repeat;
+  background-position: center top; /* o center center según prefieras */
+  background-size: 1400px 700px; /* tamaño del logo */
+  background-attachment: fixed;
 }
 
 .login-card {
@@ -107,5 +117,23 @@ button {
 
 button:hover {
   background-color: #4338ca;
+}
+
+/* Estilo mejorado para el enlace "¿Olvidaste tu contraseña?" */
+.forgot-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.forgot-link:hover,
+.forgot-link:focus {
+  color: #4338ca;
+  outline: none;
+  text-decoration: none;
 }
 </style>

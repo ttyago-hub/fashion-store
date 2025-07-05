@@ -1,12 +1,9 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000/api', // Usa 'localhost' si tu CORS permite localhost
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 5000,
-  withCredentials: true // Necesario para que Sanctum funcione correctamente
+  baseURL: 'http://127.0.0.1:8000/api',
+  timeout: 5000
+  // withCredentials: true // Elimina o comenta esta línea si no usas cookies
 });
 
 apiClient.interceptors.response.use(

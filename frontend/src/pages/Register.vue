@@ -5,13 +5,7 @@
       <input v-model="name" placeholder="Nombre completo" required />
       <input v-model="email" placeholder="Correo electrónico" type="email" required />
       <input v-model="password" placeholder="Contraseña" type="password" required />
-
-      <select v-model="role" required>
-        <option disabled value="">Selecciona un rol</option>
-        <option value="user">Usuario</option>
-        <option value="admin">Administrador</option>
-      </select>
-
+      <input v-model="password_confirmation" placeholder="Confirmar contraseña" type="password" required />
       <button type="submit">Registrar</button>
     </form>
   </div>
@@ -26,7 +20,7 @@ export default {
       name: '',
       email: '',
       password: '',
-      role: ''
+      password_confirmation: ''
     }
   },
   methods: {
@@ -36,13 +30,19 @@ export default {
           name: this.name,
           email: this.email,
           password: this.password,
-          role: this.role
+          password_confirmation: this.password_confirmation,
+          role: 'user' // fuerza el rol a 'user' desde el frontend (opcional)
         })
         alert('Usuario registrado correctamente')
         this.$router.push('/login')
       } catch (error) {
-        console.error(error.response?.data || error.message)
-        alert('Error al registrar')
+        if (error.response) {
+          alert('Error al registrar: ' + JSON.stringify(error.response.data));
+          console.error(error.response.data);
+        } else {
+          alert('Error al registrar: ' + error.message);
+          console.error(error);
+        }
       }
     }
   }
@@ -50,15 +50,6 @@ export default {
 </script>
 
 <style scoped>
-/* igual que antes + estilos para select */
-.register-form select {
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background-color: white;
-}
-
 .register-container {
   max-width: 400px;
   margin: 3rem auto;

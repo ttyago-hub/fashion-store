@@ -46,7 +46,7 @@ class ProductController extends Controller
         'image' => $imagePath
     ]);
 
-        return response()->json($product, 201); 
+        return response()->json(['message' => 'Producto agregado correctamente']); 
     }
 
     // Actualizar producto

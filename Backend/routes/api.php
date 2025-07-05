@@ -16,7 +16,13 @@ Route::post('/login', [AuthController::class, 'login']);
 // Rutas públicas para productos (listar, mostrar, buscar)
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/search', [ProductController::class, 'search']);
+Route::get('/products/search/{query}', [ProductController::class, 'search']);
+
+// Envío de enlace
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+
+// Restablecimiento de contraseña
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 // Rutas protegidas con autenticación Sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -43,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestión de usuarios
         Route::get('/users', [UserController::class, 'index']);
+        Route::put('/users/{id}', [UserController::class, 'update']); // <-- AGREGA ESTA LÍNEA
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 

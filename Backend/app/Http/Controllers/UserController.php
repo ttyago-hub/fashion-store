@@ -15,20 +15,25 @@ class UserController extends Controller
     }
 
     // Cambiar el rol de un usuario
-    public function updateRole(Request $request, $id)
+    
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'role' => 'required|in:admin,user'
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'role' => 'required|in:admin,user'
+    ]);
 
-        $user = User::findOrFail($id);
-        $user->role = $request->role;
-        $user->save();
+    $user = User::findOrFail($id);
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->role = $request->role;
+    $user->save();
 
-        return response()->json([
-            'message' => 'Rol actualizado correctamente',
-            'user' => $user
-        ]);
+    return response()->json([
+        'message' => 'Usuario actualizado correctamente',
+        'user' => $user
+    ]);
     }
 
     // Eliminar un usuario
