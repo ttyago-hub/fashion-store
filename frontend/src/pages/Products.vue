@@ -20,7 +20,7 @@
       >
         <h3>{{ product.name }}</h3>
         <p class="description">{{ product.description }}</p>
-        <p><strong>Precio:</strong> ${{ product.price.toFixed(2) }}</p>
+        <p><strong>Precio:</strong> ${{ Number(product.price).toFixed(2) }}</p>
         <p><strong>Categoría:</strong> {{ product.category }}</p>
         <button @click="reserve(product)">Apartar</button>
       </div>
@@ -92,7 +92,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
    /* Fondo con logo */
-  background-image: url('public/descarga (1).jpeg');  /* Ajusta la ruta si es otra */
+  background-image: url('publi/');  /* Ajusta la ruta si es otra */
   background-repeat: no-repeat;
   background-position: center top; /* o center center según prefieras */
   background-size: 900px 700px; /* tamaño del logo */

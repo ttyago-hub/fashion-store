@@ -38,26 +38,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas para usuarios con rol 'user' (apartados de productos)
     Route::middleware('role:user')->group(function () {
         Route::post('/reservations', [ReservationController::class, 'store']);
+        Route::get('/user/reservations', [ReservationController::class, 'userReservations']); // Nueva ruta
     });
 
     // Rutas para usuarios con rol 'admin'
     Route::middleware('role:admin')->group(function () {
-        // Gestión de reservas
-        Route::get('/reservations', [ReservationController::class, 'index']);
-        Route::get('/reservations/{id}', [ReservationController::class, 'show']);
-        Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+        // Gestión de reservas - Agregada ruta PUT para actualización
+        Route::apiResource('/reservations', ReservationController::class)->except(['create', 'edit']);
+        Route::put('/reservations/{id}/status', [ReservationController::class, 'updateStatus']); // Ruta específica para actualizar estado
 
         // Gestión de usuarios
-        Route::get('/users', [UserController::class, 'index']);
-        Route::put('/users/{id}', [UserController::class, 'update']); // <-- AGREGA ESTA LÍNEA
+        Route::apiResource('/users', UserController::class)->except(['create', 'edit']);
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
-        Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         // Gestión de productos
-        
-        Route::post('/products', [ProductController::class, 'store']);
-        Route::put('/products/{id}', [ProductController::class, 'update']);
-        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+        Route::apiResource('/products', ProductController::class)->except(['create', 'edit']);
 
         // Inventario
         Route::get('/inventory', [InventoryController::class, 'index']);

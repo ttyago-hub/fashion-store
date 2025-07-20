@@ -19,9 +19,11 @@
           <tr v-for="product in products" :key="product.id">
             <td>{{ product.name }}</td>
             <td>{{ product.category }}</td>
-            <td>${{ product.price.toFixed(2) }}</td>
+            <td>${{ Number(product.price).toFixed(2) }}</td>
             <td>{{ product.stock }}</td>
-            <td>{{ new Date(product.updated_at).toLocaleString() }}</td>
+            <td>
+              {{ product.updated_at ? new Date(product.updated_at).toLocaleString() : 'Sin fecha' }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -51,10 +53,24 @@ export default {
         const response = await api.get('/inventory', {
           headers: { Authorization: `Bearer ${token}` }
         })
-        this.products = response.data
+        console.log('Respuesta cruda de inventario:', response.data)
+        let products = []
+        if (Array.isArray(response.data)) {
+          products = response.data
+        } else if (response.data && Array.isArray(response.data.data)) {
+          products = response.data.data
+        } else if (response.data && Array.isArray(response.data.inventory)) {
+          products = response.data.inventory
+        }
+        this.products = products.map(p => ({
+          ...p,
+          price: Number(p.price)
+        }))
+        console.log('Productos en inventario:', this.products)
       } catch (error) {
         alert('Error al obtener el inventario')
         console.error(error.response?.data || error.message)
+        this.products = []
       }
     },
     printInventory() {

@@ -5,9 +5,54 @@
       <p>Explora nuestra colección y aparta tus productos favoritos.</p>
       <router-link to="/products" class="home-button">Ver productos</router-link>
     </div>
+
+    <!-- Vista previa de productos -->
+    <div class="preview-products" v-if="products.length">
+      <h2 style="margin-top:2rem;">Productos destacados</h2>
+      <div class="preview-list">
+        <div v-for="product in products.slice(0, 4)" :key="product.id" class="preview-card">
+          <img
+            v-if="product.image"
+            :src="getImageUrl(product.image)"
+            alt="Imagen"
+            width="300"
+            style="display:block;margin:0 auto 1rem;"
+          />
+          <span v-else class="text-muted">Sin imagen</span>
+          <h3>{{ product.name }}</h3>
+          <p class="description">{{ product.description }}</p>
+          <p><strong>Precio:</strong> ${{ Number(product.price).toFixed(2) }}</p>
+          <p><strong>Categoría:</strong> {{ product.category }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
+<script>
+import api from '../axios'
+
+export default {
+  data() {
+    return {
+      products: []
+    }
+  },
+  async mounted() {
+    try {
+      const res = await api.get('/products')
+      this.products = Array.isArray(res.data) ? res.data : res.data.data
+    } catch (e) {
+      this.products = []
+    }
+  },
+  methods: {
+    getImageUrl(filename) {
+      return 'http://127.0.0.1:8000/storage/products/${filename}' // Asegúrate de que esta URL sea correcta según tu configuración;
+    }
+  }
+}
+</script>
 
 <style scoped>
 .home-container {
@@ -19,7 +64,7 @@
   padding: 2rem;
 
   /* Fondo con logo */
-  background-image: url('public/descarga (1).jpeg');  /* Ajusta la ruta si es otra */
+  background-image: url('public/');  /* Ajusta la ruta si es otra */
   background-repeat: no-repeat;
   background-position: center top; /* o center center según prefieras */
   background-size: 900px 700px; /* tamaño del logo */
@@ -85,4 +130,40 @@ p {
   animation: pop 0.4s ease-out;
 }
 
+.preview-products {
+  margin-top: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 2rem 1rem;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.preview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.preview-card {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  text-align: left;
+}
+
+.preview-card h3 {
+  margin: 0 0 0.5rem;
+  color: #4f46e5;
+}
+
+.preview-card .description {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
 </style>

@@ -14,7 +14,8 @@ class Product extends Model
         'description',
         'category',
         'stock',
-        'price'
+        'price',
+        'image',
     ];
     public function reservations()
 {

@@ -12,7 +12,7 @@ return new class extends Migration
    public function up()
 {
     Schema::table('reservations', function (Blueprint $table) {
-        $table->enum('delivery_type', ['retiro', 'domicilio'])->after('quantity');
+        $table->enum('delivery_type', ['Retiro en tienda', 'Entrega a domicilio'])->after('quantity');
         $table->string('delivery_address')->nullable()->after('delivery_type');
         $table->string('delivery_code')->nullable()->after('delivery_address');
     });

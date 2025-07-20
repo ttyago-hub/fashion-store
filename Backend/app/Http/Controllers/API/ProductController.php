@@ -45,7 +45,7 @@ class ProductController extends Controller
         'description' => $request->description,
         'image' => $imagePath
     ]);
-
+        
         return response()->json(['message' => 'Producto agregado correctamente']); 
     }
 

@@ -2,9 +2,10 @@
   <div class="reservation-container">
     <h2>Apartar producto</h2>
 
+    <!-- Mostrar información del producto -->
     <div v-if="product" class="product-info">
       <p><strong>Producto:</strong> {{ product.name }}</p>
-      <p><strong>Precio:</strong> ${{ product.price.toFixed(2) }}</p>
+      <p><strong>Precio:</strong> ${{ Number(product.price).toFixed(2) }}</p>
       <p><strong>Stock disponible:</strong> {{ product.stock }}</p>
 
       <form @submit.prevent="submitReservation" class="reservation-form">
@@ -20,12 +21,12 @@
 
         <label for="deliveryType">Tipo de entrega:</label>
         <select id="deliveryType" v-model="deliveryType" required>
-          <option value="">Selecciona una opción</option>
-          <option value="pickup">Retiro en tienda</option>
-          <option value="delivery">Entrega a domicilio</option>
+          <option value="" disabled>Selecciona una opción</option>
+          <option value="Retiro en tienda">Retiro en tienda</option>
+          <option value="Entrega a domicilio">Entrega a domicilio</option>
         </select>
 
-        <div v-if="deliveryType === 'delivery'">
+        <div v-if="deliveryType === 'Entrega a domicilio'">
           <label for="address">Dirección de entrega:</label>
           <input
             id="address"
@@ -39,11 +40,77 @@
       </form>
     </div>
 
-    <div v-else>
+    <!-- Mientras se carga -->
+    <div v-else-if="loading">
       <p>Cargando información del producto...</p>
+    </div>
+
+    <!-- Si hubo un error -->
+    <div v-else>
+      <p style="color: red;">Error al cargar el producto. Verifica la URL o intenta de nuevo.</p>
     </div>
   </div>
 </template>
+
+<script>
+import api from '../axios'
+
+export default {
+  data() {
+    return {
+      product: null,
+      quantity: 1,
+      deliveryType: '',
+      deliveryAddress: '',
+      loading: true
+    }
+  },
+  async mounted() {
+    const productId = this.$route.query.productId
+    console.log("ID recibido desde la URL:", productId)
+
+    if (productId) {
+      try {
+        const res = await api.get(`/products/${productId}`)
+        this.product = res.data
+        console.log("Producto cargado:", res.data)
+      } catch (error) {
+        console.error("Error al cargar producto:", error.response?.data || error)
+        this.product = null
+      } finally {
+        this.loading = false
+      }
+    } else {
+      console.warn("No se proporcionó productId en la URL.")
+      this.loading = false
+    }
+  },
+  methods: {
+    async submitReservation() {
+      if (!this.deliveryType) {
+        alert('Por favor selecciona un tipo de entrega.')
+        return
+      }
+
+      const data = {
+        product_id: this.product.id,
+        quantity: this.quantity,
+        delivery_type: this.deliveryType,
+        delivery_address: this.deliveryType === 'Entrega a domicilio' ? this.deliveryAddress : null
+      }
+
+      try {
+        await api.post('/reservations', data)
+        alert('¡Producto apartado correctamente!')
+        this.$router.push('/mis-reservas')
+      } catch (error) {
+        alert('Error al apartar el producto: ' + (error.response?.data?.message || 'Error desconocido'))
+        console.error('Error al apartar:', error.response?.data || error)
+      }
+    }
+  }
+}
+</script>
 
 <style scoped>
 .reservation-container {

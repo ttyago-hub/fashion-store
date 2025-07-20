@@ -71,7 +71,7 @@ export default {
   justify-content: center;
   padding: 2rem;
    /* Fondo con logo */
-  background-image: url('public/descarga (1).jpeg');  /* Ajusta la ruta si es otra */
+  background-image: url('public/');  /* Ajusta la ruta si es otra */
   background-repeat: no-repeat;
   background-position: center top; /* o center center según prefieras */
   background-size: 1400px 700px; /* tamaño del logo */

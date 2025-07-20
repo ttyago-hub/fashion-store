@@ -1,60 +1,149 @@
 <template>
-  <div class="dashboard-container">
-    <h2>Gestión de Productos (Administrador)</h2>
+  <div class="admin-dashboard">
+    <!-- Pestañas para navegar entre secciones -->
+    <div class="tabs">
+      <button 
+        @click="activeTab = 'products'"
+        :class="{ active: activeTab === 'products' }"
+      >
+        Gestión de Productos
+      </button>
+      <button 
+        @click="activeTab = 'reservations'"
+        :class="{ active: activeTab === 'reservations' }"
+      >
+        Gestión de Reservas
+      </button>
+    </div>
 
-    <!-- Formulario de creación/edición -->
-    <form @submit.prevent="submitForm" class="product-form">
-      <input v-model="form.name" placeholder="Nombre del producto" required />
-      <input v-model="form.category" placeholder="Categoría" required />
-      <input v-model.number="form.price" type="number" step="0.01" placeholder="Precio" required />
-      <input v-model.number="form.stock" type="number" placeholder="Stock" required />
-      <textarea v-model="form.description" placeholder="Descripción"></textarea>
+    <!-- Sección de Productos -->
+    <div v-if="activeTab === 'products'" class="products-section">
+      <h2>Gestión de Productos</h2>
 
-      <input type="file" @change="handleImage" accept="image/*" class="file-input" required />
+      <!-- Formulario de creación/edición -->
+      <form @submit.prevent="submitProductForm" class="product-form">
+        <input v-model="productForm.name" placeholder="Nombre del producto" required />
+        <input v-model="productForm.category" placeholder="Categoría" required />
+        <input v-model.number="productForm.price" type="number" step="0.01" placeholder="Precio" required />
+        <input v-model.number="productForm.stock" type="number" placeholder="Stock" required />
+        <textarea v-model="productForm.description" placeholder="Descripción"></textarea>
 
-      <div v-if="form.currentImage && !form.image" class="image-preview">
-        <p>Imagen actual:</p>
-        <img :src="getImageUrl(form.currentImage)" alt="Imagen actual" width="150" />
+        <input type="file" @change="handleProductImage" accept="image/*" class="file-input" required />
+
+        <div v-if="productForm.currentImage && !productForm.image" class="image-preview">
+          <p>Imagen actual:</p>
+          <img :src="getImageUrl(productForm.currentImage)" alt="Imagen actual" width="150" />
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn primary">
+            {{ productForm.id ? 'Actualizar 📝' : 'Crear ➕' }}
+          </button>
+          <button v-if="productForm.id" type="button" @click="cancelProductEdit" class="btn secondary">
+            Cancelar ❌
+          </button>
+        </div>
+      </form>
+
+      <!-- Lista de productos -->
+      <div class="table-responsive">
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Imagen</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in products" :key="product.id">
+              <td>{{ product.name }}</td>
+              <td>{{ product.category }}</td>
+              <td>${{ Number(product.price).toFixed(2) }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <img v-if="product.image" :src="getImageUrl(product.image)" alt="Imagen" width="80" />
+                <span v-else class="text-muted">Sin imagen</span>
+              </td>
+              <td>
+                <button @click="editProduct(product)" class="btn edit">Editar ✏️</button>
+                <button @click="deleteProduct(product.id)" class="btn delete">Eliminar 🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sección de Reservas -->
+    <div v-if="activeTab === 'reservations'" class="reservations-section">
+      <h2>Gestión de Reservas</h2>
+
+      <!-- Filtros para reservas -->
+      <div class="filters">
+        <select v-model="reservationFilter.status" @change="fetchReservations">
+          <option value="">Todas las reservas</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="completado">Completadas</option>
+          <option value="cancelado">Canceladas</option>
+        </select>
+
+        <input
+          type="text"
+          v-model="reservationFilter.search"
+          placeholder="Buscar por usuario o producto"
+          @input="fetchReservations"
+        />
       </div>
 
-      <div class="button-group">
-        <button type="submit" class="btn primary">{{ form.id ? 'Actualizar 📝' : 'Crear ➕' }}</button>
-        <button v-if="form.id" type="button" @click="cancelEdit" class="btn secondary">Cancelar ❌</button>
+      <!-- Tabla de reservas -->
+      <div class="table-responsive">
+        <table class="reservation-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="reservation in reservations" :key="reservation.id">
+              <td>{{ reservation.user.name }}</td>
+              <td>{{ reservation.product.name }}</td>
+              <td>{{ reservation.quantity }}</td>
+              <td>${{ (reservation.quantity * reservation.product.price).toFixed(2) }}</td>
+              <td>{{ formatDate(reservation.created_at) }}</td>
+              <td>
+                <span class="status-badge" :class="reservation.status">
+                  {{ reservation.status }}
+                </span>
+              </td>
+              <td>
+                <select
+                  v-model="reservation.status"
+                  @change="updateReservationStatus(reservation)"
+                  class="status-select"
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="completado">Completado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div v-if="reservations.length === 0" class="no-reservations">
+          No se encontraron reservas
+        </div>
       </div>
-    </form>
-
-    <hr />
-
-    <!-- Lista de productos -->
-    <div class="table-responsive">
-      <table class="product-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Imagen</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="product in products" :key="product.id">
-            <td>{{ product.name }}</td>
-            <td>{{ product.category }}</td>
-            <td>${{ product.price.toFixed(2) }}</td>
-            <td>{{ product.stock }}</td>
-            <td>
-              <img v-if="product.image" :src="getImageUrl(product.image)" alt="Imagen" width="80" />
-              <span v-else class="text-muted">Sin imagen</span>
-            </td>
-            <td>
-              <button @click="editProduct(product)" class="btn edit">Editar ✏️</button>
-              <button @click="deleteProduct(product.id)" class="btn delete">Eliminar 🗑️</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
@@ -65,7 +154,10 @@ import api from '../axios';
 export default {
   data() {
     return {
-      form: {
+      activeTab: 'products',
+      // Datos para productos
+      products: [],
+      productForm: {
         id: null,
         name: '',
         category: '',
@@ -75,10 +167,16 @@ export default {
         image: null,
         currentImage: null
       },
-      products: []
-    }
+      // Datos para reservas
+      reservations: [],
+      reservationFilter: {
+        status: '',
+        search: ''
+      }
+    };
   },
   methods: {
+    // Métodos para productos
     async fetchProducts() {
       try {
         const response = await api.get('/products');
@@ -87,74 +185,78 @@ export default {
         console.error('Error al obtener productos:', error);
       }
     },
-    handleImage(event) {
-      this.form.image = event.target.files[0];
+    handleProductImage(event) {
+      this.productForm.image = event.target.files[0];
     },
-    async submitForm() {
+    async submitProductForm() {
       const formData = new FormData();
-      formData.append('name', this.form.name);
-      formData.append('category', this.form.category);
-      formData.append('price', this.form.price); // Debe ser 5.00, no 5,00
-      formData.append('stock', this.form.stock);
-      formData.append('description', this.form.description);
+      formData.append('name', this.productForm.name);
+      formData.append('category', this.productForm.category);
+      formData.append('price', this.productForm.price);
+      formData.append('stock', this.productForm.stock);
+      formData.append('description', this.productForm.description);
 
-      if (this.form.image) {
-        formData.append('image', this.form.image);
+      if (this.productForm.image) {
+        formData.append('image', this.productForm.image);
       }
 
-      // Debug: muestra el contenido del FormData
-      for (let pair of formData.entries()) {
-        console.log(pair[0]+ ', ', pair[1]);
-      }
-      console.log('form:', this.form);
-
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token');
       try {
-        await api.post('/products', formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        this.resetForm();
+        if (this.productForm.id) {
+          await api.put(`/products/${this.productForm.id}`, formData, {
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        } else {
+          await api.post('/products', formData, {
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        }
+        this.resetProductForm();
         this.fetchProducts();
       } catch (error) {
-        if (error.response) {
-          alert('Error al guardar el producto: ' + JSON.stringify(error.response.data));
-          console.error('Error al guardar el producto:', error.response.data);
-        } else if (error.request) {
-          alert('Error de red o el backend no responde');
-          console.error('Error de red:', error.request);
-        } else {
-          alert('Error desconocido: ' + error.message);
-          console.error('Error:', error.message);
-        }
+        console.error('Error al guardar producto:', error);
       }
     },
     editProduct(product) {
-      this.form.id = product.id;
-      this.form.name = product.name;
-      this.form.category = product.category;
-      this.form.price = product.price;
-      this.form.stock = product.stock;
-      this.form.description = product.description;
-      this.form.image = null;
-      this.form.currentImage = product.image;
+      this.productForm = {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        stock: product.stock,
+        description: product.description,
+        image: null,
+        currentImage: product.image
+      };
     },
-    cancelEdit() {
-      this.resetForm();
+    cancelProductEdit() {
+      this.resetProductForm();
     },
-    resetForm() {
-      this.form.id = null;
-      this.form.name = '';
-      this.form.category = '';
-      this.form.price = 0;
-      this.form.stock = 0;
-      this.form.description = '';
-      this.form.image = null;
-      this.form.currentImage = null;
+    resetProductForm() {
+      this.productForm = {
+        id: null,
+        name: '',
+        category: '',
+        price: 0,
+        stock: 0,
+        description: '',
+        image: null,
+        currentImage: null
+      };
     },
     async deleteProduct(id) {
-      if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+      if (confirm('¿Estás seguro de eliminar este producto?')) {
+        const token = localStorage.getItem('token');
         try {
-          await api.delete(`/products/${id}`);
+          await api.delete(`/products/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
           this.fetchProducts();
         } catch (error) {
           console.error('Error al eliminar producto:', error);
@@ -163,29 +265,85 @@ export default {
     },
     getImageUrl(filename) {
       return `http://127.0.0.1:8000/storage/products/${filename}`;
+    },
+
+    // Métodos para reservas
+    async fetchReservations() {
+      try {
+        const params = {};
+        if (this.reservationFilter.status) params.status = this.reservationFilter.status;
+        if (this.reservationFilter.search) params.search = this.reservationFilter.search;
+
+        const response = await api.get('/reservations', { params });
+        this.reservations = response.data;
+      } catch (error) {
+        console.error('Error al obtener reservas:', error);
+      }
+    },
+    async updateReservationStatus(reservation) {
+      try {
+        await api.put(`/reservations/${reservation.id}`, {
+          status: reservation.status
+        });
+      } catch (error) {
+        console.error('Error al actualizar reserva:', error);
+        this.fetchReservations(); // Recargar para revertir cambios
+      }
+    },
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleString('es-ES');
     }
   },
   mounted() {
     this.fetchProducts();
+    this.fetchReservations();
+  },
+  watch: {
+    activeTab() {
+      // Puedes agregar lógica adicional cuando cambia la pestaña
+    }
   }
 };
 </script>
 
 <style scoped>
-.dashboard-container {
-  max-width: 1100px;
+.admin-dashboard {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   background-color: #f8f9fa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h2 {
-  font-size: 1.8rem;
-  color: #343a40;
-  margin-bottom: 1.5rem;
+.tabs {
+  display: flex;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #dee2e6;
 }
 
+.tabs button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tabs button.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+}
+
+.tabs button:hover:not(.active) {
+  color: #212529;
+  border-bottom-color: #adb5bd;
+}
+
+/* Estilos para la sección de productos (mantenidos de tu código original) */
 .product-form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -297,8 +455,86 @@ textarea {
   text-transform: uppercase;
 }
 
+/* Estilos para la sección de reservas */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filters select,
+.filters input {
+  padding: 0.7rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 0.95rem;
+}
+
+.filters input {
+  flex-grow: 1;
+}
+
+.reservation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.reservation-table th,
+.reservation-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.reservation-table th {
+  background-color: #343a40;
+  color: white;
+  text-transform: uppercase;
+}
+
+.status-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.pendiente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.completado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.cancelado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.no-reservations {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
 .table-responsive {
   overflow-x: auto;
+  margin-bottom: 2rem;
 }
 
 .text-muted {
@@ -306,4 +542,9 @@ textarea {
   font-style: italic;
 }
 
+h2 {
+  font-size: 1.8rem;
+  color: #343a40;
+  margin-bottom: 1.5rem;
+}
 </style>
