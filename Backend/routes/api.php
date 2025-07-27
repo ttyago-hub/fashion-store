@@ -52,7 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
 
         // Gestión de productos
-        Route::apiResource('/products', ProductController::class)->except(['create', 'edit']);
+       Route::apiResource('/products', ProductController::class)->except(['index', 'show', 'create', 'edit']);
+
 
         // Inventario
         Route::get('/inventory', [InventoryController::class, 'index']);

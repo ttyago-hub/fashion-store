@@ -1,30 +1,40 @@
 <template>
   <nav class="navbar">
-    <ul class="nav-left">
-      <li><router-link to="/">Inicio</router-link></li>
+    <!-- Logo -->
+    <div class="logo">
+      <router-link to="/" class="logo-link">Fashion Store</router-link>
+    </div>
 
+    <!-- Menú -->
+    <ul class="nav-menu"> 
+      <li><router-link to="/">Inicio</router-link></li>
+      <li><router-link to="/products">Productos</router-link></li>
       <li v-if="user && user.role === 'user'">
         <router-link to="/reserve">Mis Reservas</router-link>
       </li>
 
-      <li v-if="user && user.role === 'admin'">
-        <router-link to="/inventory">Inventario</router-link>
-        <router-link to="/reserve">Mis Reservas</router-link>
-        <router-link to="/admin">Gestión Productos</router-link>
-        <router-link to="/users">Gestión Usuarios</router-link>
-      </li>
+      <template v-if="user && user.role === 'admin'">
+        <li><router-link to="/inventory">Inventario</router-link></li>
+        <li><router-link to="/reserve">Mis Reservas</router-link></li>
+        <li><router-link to="/admin">Gestión Productos</router-link></li>
+        <li><router-link to="/users">Gestión Usuarios</router-link></li>
+      </template>
 
       <li v-if="!user">
         <router-link to="/login">Iniciar sesión</router-link>
+      </li>
+
+      <li v-if="!user">
         <router-link to="/register">Registrarse</router-link>
       </li>
-    </ul>
 
-    <div class="nav-right" v-if="user">
-      <button @click="logout" class="logout-btn">Cerrar sesión</button>
-    </div>
+      <li v-if="user">
+        <button @click="logout" class="logout-btn">Cerrar sesión</button>
+      </li>
+    </ul>
   </nav>
 </template>
+
 
 
 <script>
@@ -54,62 +64,61 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f3f4f6;
+  background-color: white;
   padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-  font-family: 'Segoe UI', sans-serif;
-  flex-wrap: wrap;
+  border-bottom: 1px solid #e5e7eb;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 0.95rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.nav-left {
-  list-style: none;
+.logo-link {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+}
+
+.nav-menu {
   display: flex;
-  gap: 16px;
+  gap: 1.5rem;
+  list-style: none;
   padding: 0;
   margin: 0;
-  flex-wrap: wrap;
+  align-items: center;
 }
 
-.nav-left li {
-  display: flex;
-}
-
-.nav-left a {
+.nav-menu a {
   text-decoration: none;
-  color: #1f2937;
-  font-weight: 500;
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  transition: background-color 0.3s, color 0.3s;
+  color: #111;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
 }
 
-.nav-left a:hover {
-  background-color: #e0e7ff;
-  color: #4f46e5;
-}
-
-.nav-right {
-  margin-left: auto;
+.nav-menu a:hover {
+  color: #666;
 }
 
 .logout-btn {
   background: none;
   border: none;
-  color: #ef4444;
-  font-weight: bold;
+  color: #b91c1c;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  transition: color 0.2s ease;
 }
 
 .logout-btn:hover {
-  background-color: #fee2e2;
+  color: #ef4444;
 }
 
 </style>

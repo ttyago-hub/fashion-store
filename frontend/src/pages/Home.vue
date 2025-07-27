@@ -1,31 +1,43 @@
 <template>
   <div class="home-container">
-    <div class="home-card animate-pop">
-      <h1>¡Bienvenido a Fashion Store!</h1>
-      <p>Explora nuestra colección y aparta tus productos favoritos.</p>
-      <router-link to="/products" class="home-button">Ver productos</router-link>
-    </div>
+    <!-- Hero principal con imagen -->
+    <section
+      class="hero-section"
+      :style="{
+        backgroundImage: `url('http://127.0.0.1:8000/storage/images/hero1.jpg')`,
+      }"
+    >
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <h1 class="hero-title">Nueva Colección 2025</h1>
+          <p class="hero-subtitle">Explora tu estilo con elegancia y actitud</p>
+          <router-link to="/products" class="hero-button">Comprar Ahora</router-link>
+        </div>
+      </div>
+    </section>
 
-    <!-- Vista previa de productos -->
-    <div class="preview-products" v-if="products.length">
-      <h2 style="margin-top:2rem;">Productos destacados</h2>
-      <div class="preview-list">
-        <div v-for="product in products.slice(0, 4)" :key="product.id" class="preview-card">
+    <!-- Productos destacados -->
+    <section class="featured-products" v-if="products.length">
+      <h2>Productos Destacados</h2>
+      <div class="product-grid">
+        <div
+          v-for="product in products.slice(0, 4)"
+          :key="product.id"
+          class="product-card"
+        >
           <img
             v-if="product.image"
             :src="getImageUrl(product.image)"
-            alt="Imagen"
-            width="300"
-            style="display:block;margin:0 auto 1rem;"
+            alt="Producto"
           />
-          <span v-else class="text-muted">Sin imagen</span>
+          <span v-else class="no-image">Sin imagen</span>
           <h3>{{ product.name }}</h3>
           <p class="description">{{ product.description }}</p>
-          <p><strong>Precio:</strong> ${{ Number(product.price).toFixed(2) }}</p>
-          <p><strong>Categoría:</strong> {{ product.category }}</p>
+          <p class="price">$ {{ Number(product.price).toFixed(2) }}</p>
+          <p class="category">{{ product.category }}</p>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -39,131 +51,138 @@ export default {
     }
   },
   async mounted() {
-    try {
-      const res = await api.get('/products')
-      this.products = Array.isArray(res.data) ? res.data : res.data.data
-    } catch (e) {
-      this.products = []
-    }
-  },
+  try {
+    const res = await api.get('/products')
+    this.products = Array.isArray(res.data) ? res.data : res.data.data
+  } catch (e) {
+  this.products = []
+  this.error = 'No se pudieron cargar los productos. Intenta más tarde.'
+}
+
+}
+,
   methods: {
     getImageUrl(filename) {
-      return 'http://127.0.0.1:8000/storage/products/${filename}' // Asegúrate de que esta URL sea correcta según tu configuración;
+      return `http://127.0.0.1:8000/storage/products/${filename}`
     }
   }
 }
 </script>
 
 <style scoped>
-.home-container {
-  background-color: #f3f4f6;
-  min-height: 100vh;
+/* Hero */
+.hero-section {
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
-
-  /* Fondo con logo */
-  background-image: url('public/');  /* Ajusta la ruta si es otra */
-  background-repeat: no-repeat;
-  background-position: center top; /* o center center según prefieras */
-  background-size: 900px 700px; /* tamaño del logo */
-  background-attachment: fixed;
+  align-items: center;
 }
 
-.home-card {
-  background-color: white;
-  padding: 3rem 2rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+.hero-content {
   text-align: center;
-  max-width: 500px;
-  width: 100%;
-  transition: transform 0.3s ease;
+  color: white;
 }
 
-h1 {
-  color: #4f46e5;
-  font-size: 2.2rem;
+.hero-title {
+  font-size: 3rem;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
-p {
-  color: #374151;
-  font-size: 1.1rem;
+.hero-subtitle {
+  font-size: 1.2rem;
   margin-bottom: 2rem;
-  line-height: 1.6;
 }
 
-.home-button {
-  background-color: #4f46e5;
-  color: white;
+.hero-button {
+  background-color: white;
+  color: black;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
   text-decoration: none;
-  font-weight: bold;
-  font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-  transition: all 0.3s ease;
-  display: inline-block;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.3s;
 }
 
-.home-button:hover {
-  background-color: #4338ca;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(67, 56, 202, 0.35);
+.hero-button:hover {
+  background-color: #f3f3f3;
 }
 
-/* Animación de entrada */
-@keyframes pop {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* Productos destacados */
+.featured-products {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
 }
 
-.animate-pop {
-  animation: pop 0.4s ease-out;
+.featured-products h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #111;
 }
 
-.preview-products {
-  margin-top: 2rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 2rem 1rem;
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.preview-list {
+.product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
 }
 
-.preview-card {
-  background: #f9fafb;
-  border-radius: 8px;
+.product-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   text-align: left;
+  transition: transform 0.2s ease;
 }
 
-.preview-card h3 {
-  margin: 0 0 0.5rem;
-  color: #4f46e5;
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
 }
 
-.preview-card .description {
-  color: #6b7280;
-  font-size: 0.95rem;
+.product-card img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+}
+
+.description {
+  color: #555;
+  font-size: 0.9rem;
   margin-bottom: 0.5rem;
+}
+
+.price {
+  color: #000;
+  font-weight: bold;
+}
+
+.category {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.no-image {
+  display: block;
+  width: 100%;
+  height: 280px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
 }
 </style>
