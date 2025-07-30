@@ -18,23 +18,22 @@
 
     <!-- Productos destacados -->
     <section class="featured-products" v-if="products.length">
-      <h2>Productos Destacados</h2>
+      <h2 class="title">Productos Destacados</h2>
+
       <div class="product-grid">
-        <div
-          v-for="product in products.slice(0, 4)"
-          :key="product.id"
-          class="product-card"
-        >
+        <div v-for="product in featuredProducts" :key="product.id" class="product-card">
           <img
             v-if="product.image"
-            :src="getImageUrl(product.image)"
+            :src="`http://127.0.0.1:8000/storage/products/${product.image}`"
             alt="Producto"
+            class="product-image"
           />
-          <span v-else class="no-image">Sin imagen</span>
-          <h3>{{ product.name }}</h3>
-          <p class="description">{{ product.description }}</p>
-          <p class="price">$ {{ Number(product.price).toFixed(2) }}</p>
-          <p class="category">{{ product.category }}</p>
+          <div class="product-info">
+            <h3>{{ product.name }}</h3>
+            <p class="description">{{ product.description }}</p>
+            <p><strong>$ {{ Number(product.price).toFixed(2) }}</strong></p>
+            <p>{{ product.category }}</p>
+          </div>
         </div>
       </div>
     </section>
@@ -50,20 +49,19 @@ export default {
       products: []
     }
   },
+  computed: {
+    featuredProducts() {
+      // Cambia esto si tienes un campo específico que indique si es destacado
+      return this.products.slice(0, 4)
+    }
+  },
   async mounted() {
-  try {
-    const res = await api.get('/products')
-    this.products = Array.isArray(res.data) ? res.data : res.data.data
-  } catch (e) {
-  this.products = []
-  this.error = 'No se pudieron cargar los productos. Intenta más tarde.'
-}
-
-}
-,
-  methods: {
-    getImageUrl(filename) {
-      return `http://127.0.0.1:8000/storage/products/${filename}`
+    try {
+      const res = await api.get('/products')
+      this.products = Array.isArray(res.data) ? res.data : res.data.data
+    } catch (e) {
+      this.products = []
+      this.error = 'No se pudieron cargar los productos. Intenta más tarde.'
     }
   }
 }
@@ -132,7 +130,7 @@ export default {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
 }
 
@@ -140,49 +138,45 @@ export default {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
-  padding: 1rem;
   text-align: left;
   transition: transform 0.2s ease;
+  overflow: hidden;
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
-.product-card img {
+.product-image {
   width: 100%;
-  height: 280px;
+  height: 380px;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 0.8rem;
+  object-position: center 25%;
+  background-color: #f0f0f0;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.product-info {
+  padding: 1rem;
+}
+
+.product-info h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #111;
+  margin-bottom: 0.4rem;
 }
 
 .description {
   color: #555;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
 }
 
-.price {
-  color: #000;
-  font-weight: bold;
-}
-
-.category {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.no-image {
-  display: block;
-  width: 100%;
-  height: 280px;
-  background: #f0f0f0;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
+.product-info p {
+  font-size: 0.95rem;
+  color: #333;
 }
 </style>

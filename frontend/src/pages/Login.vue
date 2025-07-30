@@ -1,17 +1,24 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h2>Iniciar sesión</h2>
-      <form @submit.prevent="login">
-        <input v-model="email" type="email" placeholder="Correo electrónico" required />
-        <input v-model="password" type="password" placeholder="Contraseña" required />
+  <div class="auth-container">
+    <div class="auth-left">
+      <img src="http://127.0.0.1:8000/storage/images/hero2.jpg" alt="Fashion" class="auth-image" />
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <h2>INICIA SESIÓN</h2>
+        <form @submit.prevent="login">
+          <input v-model="email" type="email" placeholder="Correo electrónico" required />
+          <input v-model="password" type="password" placeholder="Contraseña" required />
 
-        <router-link to="/forgot-password" class="forgot-link">
-          ¿Olvidaste tu contraseña?
-        </router-link>
+          <router-link to="/forgot-password" class="forgot-link">
+            ¿Olvidaste tu contraseña?
+          </router-link>
 
-        <button type="submit">Entrar</button>
-      </form>
+          <button type="submit">INICIAR SESIÓN</button>
+        </form>
+
+        <router-link to="/register" class="register-btn">REGÍSTRATE</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -41,20 +48,11 @@ export default {
 
         alert('Bienvenido ' + response.data.user.name)
 
-        // Redireccionar según rol
         const role = response.data.user.role
-        if (role === 'admin') {
-          this.$router.push('/admin')
-        } else {
-          this.$router.push('/user')
-        }
+        this.$router.push(role === 'admin' ? '/admin' : '/user')
 
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert('Credenciales incorrectas')
-        } else {
-          alert('Error al iniciar sesión')
-        }
+        alert('Credenciales incorrectas o error al iniciar sesión')
         console.error(error.response?.data || error.message)
       }
     }
@@ -63,40 +61,45 @@ export default {
 </script>
 
 <style scoped>
-.login-container {
-  min-height: 100vh;
-  background-color: #f3f4f6;
+.auth-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-   /* Fondo con logo */
-  background-image: url('public/');  /* Ajusta la ruta si es otra */
-  background-repeat: no-repeat;
-  background-position: center top; /* o center center según prefieras */
-  background-size: 1400px 700px; /* tamaño del logo */
-  background-attachment: fixed;
+  height: 100vh;
 }
 
-.login-card {
-  background-color: white;
-  padding: 2.5rem;
-  border-radius: 10px;
+.auth-left {
+  flex: 1;
+}
+
+.auth-image {
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  height: 100%;
+  object-fit: cover;
 }
 
-h2 {
-  margin-bottom: 2rem;
-  color: #4f46e5;
+.auth-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.auth-form {
+  width: 80%;
+  max-width: 400px;
+}
+
+.auth-form h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #111;
 }
 
 input {
   width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1.2rem;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
@@ -104,36 +107,32 @@ input {
 
 button {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #4f46e5;
+  padding: 0.8rem;
+  background: black;
   color: white;
-  border: none;
   font-weight: bold;
+  border: none;
   border-radius: 6px;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-button:hover {
-  background-color: #4338ca;
-}
-
-/* Estilo mejorado para el enlace "¿Olvidaste tu contraseña?" */
-.forgot-link {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  color: #4f46e5;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.forgot-link:hover,
-.forgot-link:focus {
-  color: #4338ca;
-  outline: none;
+.register-btn {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  padding: 0.8rem;
+  border: 1px solid black;
+  border-radius: 6px;
+  color: black;
   text-decoration: none;
+  font-weight: bold;
+}
+
+.forgot-link {
+  display: block;
+  margin-bottom: 1rem;
+  text-align: right;
+  color: #333;
+  font-size: 0.9rem;
 }
 </style>
