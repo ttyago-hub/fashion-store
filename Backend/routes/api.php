@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+<<<<<<< HEAD
     // 🎯 RESERVAS PARA USUARIOS: Rutas específicas para crear y ver reservas
     Route::post('/reservations', [ReservationController::class, 'store']);
     Route::get('/user/reservations', [ReservationController::class, 'userReservations']);
@@ -42,12 +43,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
         
         // Otras rutas de admin
+=======
+    // ✅ Solo usuarios normales
+    Route::middleware('role:user')->group(function () {
+        Route::post('/reservations', [ReservationController::class, 'store']);
+        Route::get('/user/reservations', [ReservationController::class, 'userReservations']);
+    });
+
+    // ✅ Solo admin
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('/reservations', ReservationController::class)->except(['create', 'edit']);
+        Route::put('/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
+
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
         Route::apiResource('/users', UserController::class)->except(['create', 'edit']);
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
 
         Route::apiResource('/products', ProductController::class)->except(['index', 'show', 'create', 'edit']);
         Route::get('/inventory', [InventoryController::class, 'index']);
     });
+<<<<<<< HEAD
     
     // 🔧 RUTA DE PRUEBA TEMPORAL
     Route::get('/test-token', function (Request $request) {
@@ -73,4 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // 🎯 DEBUG: Ruta para probar el controlador directamente
     Route::post('/debug-controller-reservation', [ReservationController::class, 'store']);
+=======
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 });

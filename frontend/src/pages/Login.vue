@@ -6,6 +6,7 @@
     <div class="auth-right">
       <div class="auth-form">
         <h2>INICIA SESIÓN</h2>
+<<<<<<< HEAD
         
         <!-- Mensaje de estado -->
         <div v-if="message" :class="['message', messageType]">
@@ -27,15 +28,24 @@
             :disabled="isLoading"
             required 
           />
+=======
+        <form @submit.prevent="login">
+          <input v-model="email" type="email" placeholder="Correo electrónico" required />
+          <input v-model="password" type="password" placeholder="Contraseña" required />
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 
           <router-link to="/forgot-password" class="forgot-link">
             ¿Olvidaste tu contraseña?
           </router-link>
 
+<<<<<<< HEAD
           <button type="submit" :disabled="isLoading">
             <span v-if="isLoading">Iniciando sesión... ⏳</span>
             <span v-else>INICIAR SESIÓN</span>
           </button>
+=======
+          <button type="submit">INICIAR SESIÓN</button>
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
         </form>
 
         <router-link to="/register" class="register-btn">REGÍSTRATE</router-link>
@@ -84,6 +94,7 @@ export default {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
 
+<<<<<<< HEAD
         // ✅ LOGIN EXITOSO - Mostrar mensaje de éxito
         this.message = `¡Bienvenido ${response.data.user.name}! Redirigiendo a tu panel... 🎉`
         this.messageType = 'success'
@@ -112,6 +123,14 @@ export default {
       } finally {
         // Detener carga
         this.isLoading = false
+=======
+        const role = response.data.user.role
+        this.$router.push(role === 'admin' ? '/admin' : '/user')
+
+      } catch (error) {
+        alert('Credenciales incorrectas o error al iniciar sesión')
+        console.error(error.response?.data || error.message)
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
       }
     }
   }
@@ -199,6 +218,7 @@ button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+<<<<<<< HEAD
   transition: opacity 0.3s ease;
 }
 
@@ -207,6 +227,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
+=======
+}
+
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 .register-btn {
   display: block;
   margin-top: 1rem;
@@ -225,6 +249,7 @@ button:disabled {
   text-align: right;
   color: #333;
   font-size: 0.9rem;
+<<<<<<< HEAD
 }
 
 @media (max-width: 900px) {
@@ -259,5 +284,7 @@ button:disabled {
     font-size: 1rem;
     padding: 0.7rem;
   }
+=======
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 }
 </style>

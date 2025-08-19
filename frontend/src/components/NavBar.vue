@@ -15,7 +15,11 @@
 
       <template v-if="user && user.role === 'admin'">
         <li><router-link to="/inventory">Inventario</router-link></li>
+<<<<<<< HEAD
         <li><router-link to="/user">Mis Reservas</router-link></li>
+=======
+        <li><router-link to="/reserve">Mis Reservas</router-link></li>
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
         <li><router-link to="/admin">Gestión Productos</router-link></li>
         <li><router-link to="/users">Gestión Usuarios</router-link></li>
       </template>
@@ -29,6 +33,7 @@
       </li>
 
       <li v-if="user">
+<<<<<<< HEAD
         <span class="user-info">
           <span class="user-greeting">Hola, {{ user.name }}</span>
           <span class="user-role" :class="user.role">
@@ -38,6 +43,8 @@
       </li>
 
       <li v-if="user">
+=======
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
         <button @click="logout" class="logout-btn">Cerrar sesión</button>
       </li>
     </ul>
@@ -128,6 +135,7 @@ export default {
 
 .logout-btn:hover {
   color: #ef4444;
+<<<<<<< HEAD
 }
 @media (max-width: 900px) {
   .main-container {
@@ -143,6 +151,8 @@ export default {
     height: 200px;
     object-fit: cover;
   }
+=======
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 }
 
 @media (max-width: 600px) {

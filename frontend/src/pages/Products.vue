@@ -198,6 +198,7 @@ button:hover {
   color: #777;
   font-size: 1.1rem;
   margin-top: 2rem;
+<<<<<<< HEAD
 }
 @media (max-width: 900px) {
   .main-container {
@@ -231,5 +232,7 @@ button:hover {
     font-size: 1rem;
     padding: 0.7rem;
   }
+=======
+>>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 }
 </style>
