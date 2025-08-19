@@ -19,11 +19,8 @@
 </template>
 
 <script>
-<<<<<<< HEAD
 import { getProductImageUrl } from '../config/api';
 
-=======
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 export default {
   name: 'ProductCard',
   props: {
@@ -32,16 +29,7 @@ export default {
   computed: {
     // Computar la URL completa de la imagen del producto (o imagen por defecto si no hay)
     productImageUrl() {
-<<<<<<< HEAD
       return getProductImageUrl(this.product.image);
-=======
-      if (this.product.image) {
-        return `/storage/products/${this.product.image}`;
-      } else {
-        // Si no hay imagen, usar una imagen por defecto (asegúrate que default.png existe en public/storage/products)
-        return `/storage/products/default.png`;
-      }
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
     },
     // Formatear el precio, asumiendo que product.price es numérico
     formattedPrice() {

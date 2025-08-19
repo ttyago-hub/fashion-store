@@ -1,6 +1,5 @@
 <template>
   <div class="home-container">
-<<<<<<< HEAD
     <!-- Indicador de redirección automática -->
     <div v-if="isRedirecting" class="redirect-overlay">
       <div class="redirect-content">
@@ -50,45 +49,6 @@
         </div>
       </section>
     </template>
-=======
-    <!-- Hero principal con imagen -->
-    <section
-      class="hero-section"
-      :style="{
-        backgroundImage: `url('http://127.0.0.1:8000/storage/images/hero1.jpg')`,
-      }"
-    >
-      <div class="hero-overlay">
-        <div class="hero-content">
-          <h1 class="hero-title">Nueva Colección 2025</h1>
-          <p class="hero-subtitle">Explora tu estilo con elegancia y actitud</p>
-          <router-link to="/products" class="hero-button">Comprar Ahora</router-link>
-        </div>
-      </div>
-    </section>
-
-    <!-- Productos destacados -->
-    <section class="featured-products" v-if="products.length">
-      <h2 class="title">Productos Destacados</h2>
-
-      <div class="product-grid">
-        <div v-for="product in featuredProducts" :key="product.id" class="product-card">
-          <img
-            v-if="product.image"
-            :src="`http://127.0.0.1:8000/storage/products/${product.image}`"
-            alt="Producto"
-            class="product-image"
-          />
-          <div class="product-info">
-            <h3>{{ product.name }}</h3>
-            <p class="description">{{ product.description }}</p>
-            <p><strong>$ {{ Number(product.price).toFixed(2) }}</strong></p>
-            <p>{{ product.category }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
   </div>
 </template>
 
@@ -118,7 +78,6 @@ export default {
     }
   },
   async mounted() {
-<<<<<<< HEAD
     // Verificar si hay usuario autenticado para redirección automática
     this.checkAutoRedirect();
     
@@ -159,14 +118,6 @@ export default {
         this.products = []
         this.error = 'No se pudieron cargar los productos. Intenta más tarde.'
       }
-=======
-    try {
-      const res = await api.get('/products')
-      this.products = Array.isArray(res.data) ? res.data : res.data.data
-    } catch (e) {
-      this.products = []
-      this.error = 'No se pudieron cargar los productos. Intenta más tarde.'
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
     }
   }
 }
@@ -284,7 +235,6 @@ export default {
   font-size: 0.95rem;
   color: #333;
 }
-<<<<<<< HEAD
 @media (max-width: 900px) {
   .main-container {
     flex-direction: column;
@@ -366,6 +316,4 @@ export default {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-=======
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 </style>

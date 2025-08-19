@@ -38,13 +38,9 @@
               />
             </div>
 
-<<<<<<< HEAD
             <button type="submit" :disabled="submitting">
               {{ submitting ? 'PROCESANDO...' : 'CONFIRMAR APARTADO' }}
             </button>
-=======
-            <button type="submit">CONFIRMAR APARTADO</button>
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
           </form>
         </div>
 
@@ -54,13 +50,8 @@
         </div>
 
         <!-- Error -->
-<<<<<<< HEAD
         <div v-else-if="errorMessage">
           <p class="error">{{ errorMessage }}</p>
-=======
-        <div v-else>
-          <p class="error">Error al cargar el producto. Verifica la URL o intenta de nuevo.</p>
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
         </div>
       </div>
     </div>
@@ -84,7 +75,6 @@ export default {
   },
   async mounted() {
     const productId = this.$route.query.productId
-<<<<<<< HEAD
     if (!productId) {
       this.loading = false
       this.errorMessage = 'No se ha proporcionado un producto para apartar.'
@@ -102,19 +92,6 @@ export default {
       this.errorMessage = 'Error al cargar el producto. Verifica la URL o intenta de nuevo.'
       console.error("Error al cargar producto:", error.response?.data || error)
     } finally {
-=======
-    if (productId) {
-      try {
-        const res = await api.get(`/products/${productId}`)
-        this.product = res.data
-      } catch (error) {
-        this.product = null
-        console.error("Error al cargar producto:", error.response?.data || error)
-      } finally {
-        this.loading = false
-      }
-    } else {
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
       this.loading = false
     }
   },
@@ -188,7 +165,6 @@ export default {
         // Redirigir al dashboard del usuario donde puede ver sus reservas
         this.$router.push('/user')
       } catch (error) {
-<<<<<<< HEAD
         console.error('Error al crear reserva:', error)
         
         if (error.response?.status === 401) {
@@ -213,10 +189,6 @@ export default {
         }
       } finally {
         this.submitting = false
-=======
-        alert('Error al apartar: ' + (error.response?.data?.message || 'Error desconocido'))
-        console.error('Error al apartar:', error.response?.data || error)
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
       }
     }
   }
@@ -226,12 +198,8 @@ export default {
 <style scoped>
 .reservation-container {
   min-height: 100vh;
-<<<<<<< HEAD
   /* 🔹 Usa un placeholder si no tienes imagen */
   background-image: url('/storage/images/hero5.jpg');
-=======
-  background-image: url('http://127.0.0.1:8000/storage/images/hero5.jpg');
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
   background-size: cover;
   background-position: center;
   display: flex;
@@ -306,20 +274,16 @@ button:hover {
   background-color: #222;
 }
 
-<<<<<<< HEAD
 button:disabled {
   background-color: #666;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-=======
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 .error {
   color: red;
   font-weight: 500;
   margin-top: 1rem;
-<<<<<<< HEAD
 }
 @media (max-width: 900px) {
   .main-container {
@@ -353,7 +317,5 @@ button:disabled {
     font-size: 1rem;
     padding: 0.7rem;
   }
-=======
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 }
 </style>

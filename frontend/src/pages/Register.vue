@@ -121,7 +121,6 @@ button {
   color: black;
   text-decoration: none;
   font-weight: bold;
-<<<<<<< HEAD
 }
 @media (max-width: 900px) {
   .main-container {
@@ -155,7 +154,5 @@ button {
     font-size: 1rem;
     padding: 0.7rem;
   }
-=======
->>>>>>> 44172495fe341cb5435355a45143c79aa45e0ca4
 }
 </style>
