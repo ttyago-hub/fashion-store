@@ -61,7 +61,18 @@
             :class="reservation.status"
           >
             <div class="card-header">
-              <h3>{{ reservation.product?.name || 'Producto no disponible' }}</h3>
+              <div class="product-info">
+                <img 
+                  v-if="reservation.product?.image" 
+                  :src="getProductImageUrl(reservation.product.image)" 
+                  :alt="reservation.product?.name"
+                  class="product-image"
+                />
+                <div class="product-details">
+                  <h3>{{ reservation.product?.name || 'Producto no disponible' }}</h3>
+                  <p class="product-category">{{ reservation.product?.category || '' }}</p>
+                </div>
+              </div>
               <span class="reservation-status" :class="reservation.status">
                 {{ formatStatus(reservation.status) }}
               </span>
@@ -107,7 +118,7 @@
               
               <router-link 
                 v-if="reservation.product"
-                :to="'/products/' + reservation.product.id"
+                :to="{ name: 'product-detail', params: { id: reservation.product.id } }"
                 class="action-btn view-product-btn"
               >
                 <i class="fas fa-eye"></i> Ver producto
@@ -134,6 +145,7 @@
 
 <script>
 import api from '../axios';
+import { getProductImageUrl } from '../config/api';
 
 export default {
   name: 'UserDashboard',
@@ -161,25 +173,28 @@ export default {
       }
 
       try {
-        const response = await api.get('/user', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/user');
         this.user = response.data;
       } catch (error) {
         console.error('Error al cargar datos del usuario:', error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.$router.push('/login');
+        }
       }
     },
     async fetchReservations() {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await api.get('/user/reservations', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/user/reservations');
         this.reservations = response.data;
         this.filterReservations();
       } catch (error) {
@@ -232,11 +247,18 @@ export default {
         'cancelado': 'Cancelado'
       };
       return statusMap[status] || status;
-    }
+    },
+    getProductImageUrl
   },
   mounted() {
     this.fetchUserData();
     this.fetchReservations();
+  },
+  // Escuchar cambios en la ruta para recargar automáticamente
+  watch: {
+    '$route'() {
+      this.fetchReservations();
+    }
   }
 }
 </script>
@@ -447,6 +469,32 @@ export default {
   align-items: center;
 }
 
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.product-details h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.product-category {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
 .card-header h3 {
   margin: 0;
   font-size: 1.1rem;
@@ -561,6 +609,39 @@ export default {
   
   .reservation-cards {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .left-section, .right-section {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  .main-image {
+    height: 200px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    width: 95%;
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .main-image {
+    height: 120px;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  input, button, .register-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
   }
 }
 </style>

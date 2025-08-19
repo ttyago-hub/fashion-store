@@ -31,17 +31,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // 🎯 RESERVAS PARA USUARIOS: Rutas específicas para crear y ver reservas
+    // 🔧 TEMPORAL: Rutas de reservas SIN middleware de rol (para probar)
     Route::post('/reservations', [ReservationController::class, 'store']);
     Route::get('/user/reservations', [ReservationController::class, 'userReservations']);
 
-    // ✅ Solo admin - RUTAS SEPARADAS PARA EVITAR CONFLICTOS
+    // ✅ Solo admin
     Route::middleware('role:admin')->group(function () {
-        // 🔧 RESERVAS PARA ADMIN: Rutas específicas con prefijo admin
-        Route::get('/admin/reservations', [ReservationController::class, 'index']);
-        Route::put('/admin/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
-        
-        // Otras rutas de admin
+        Route::apiResource('/reservations', ReservationController::class)->except(['create', 'edit']);
+        Route::put('/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
+
         Route::apiResource('/users', UserController::class)->except(['create', 'edit']);
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
 

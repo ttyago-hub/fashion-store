@@ -174,4 +174,37 @@ h2 {
     display: none;
   }
 }
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .left-section, .right-section {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  .main-image {
+    height: 200px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    width: 95%;
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .main-image {
+    height: 120px;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  input, button, .register-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+}
 </style>

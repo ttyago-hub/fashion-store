@@ -14,16 +14,25 @@ class Reservation extends Model
         'product_id',
         'quantity',
         'delivery_type',
-        'delivery_code',
         'delivery_address',
-        'status',
+        'status'
     ];
 
+    protected $casts = [
+        'quantity' => 'integer',
+    ];
+
+    /**
+     * Get the user that owns the reservation.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the product associated with the reservation.
+     */
     public function product()
     {
         return $this->belongsTo(Product::class);

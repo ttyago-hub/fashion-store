@@ -35,13 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservations', [ReservationController::class, 'store']);
     Route::get('/user/reservations', [ReservationController::class, 'userReservations']);
 
-    // ✅ Solo admin - RUTAS SEPARADAS PARA EVITAR CONFLICTOS
+    // ✅ Solo admin - CAMBIAMOS EL NOMBRE PARA EVITAR CONFLICTOS
     Route::middleware('role:admin')->group(function () {
-        // 🔧 RESERVAS PARA ADMIN: Rutas específicas con prefijo admin
-        Route::get('/admin/reservations', [ReservationController::class, 'index']);
+        // 🔧 CAMBIO: Usamos /admin/reservations en lugar de /reservations
+        Route::apiResource('/admin/reservations', ReservationController::class)->except(['create', 'edit']);
         Route::put('/admin/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
-        
-        // Otras rutas de admin
+
         Route::apiResource('/users', UserController::class)->except(['create', 'edit']);
         Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
 

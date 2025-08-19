@@ -21,33 +21,39 @@ class ProductController extends Controller
     }
 
     // Módulo 2: Crear producto
-    public function store(Request $request)
-    {
-        $request->validate([
-        'name' => 'required',
-        'category' => 'required',
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'category' => 'required|string|max:255',
+        'description' => 'nullable|string',
         'price' => 'required|numeric',
         'stock' => 'required|integer',
-        'description' => 'nullable',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
     ]);
-    $imagePath = null;
 
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('products', 'public');
-    }
+    try {
+        $product = new Product();
+        $product->name = $request->name;
+        $product->category = $request->category;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->stock = $request->stock;
 
-        $product = Product::create([
-        'name' => $request->name,
-        'category' => $request->category,
-        'price' => $request->price,
-        'stock' => $request->stock,
-        'description' => $request->description,
-        'image' => $imagePath
-    ]);
-        
-        return response()->json(['message' => 'Producto agregado correctamente']); 
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('public/products', $imageName);
+            $product->image = $imageName;
+        }
+
+        $product->save();
+
+        return response()->json(['message' => 'Producto guardado con éxito'], 201);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al guardar el producto', 'details' => $e->getMessage()], 500);
     }
+}
 
     // Actualizar producto
     public function update(Request $request, $id)

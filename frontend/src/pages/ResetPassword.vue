@@ -1,31 +1,20 @@
 <template>
   <div class="reset-container">
-    <div class="reset-card">
-      <h2>Restablecer contraseña</h2>
-      <p class="description">Ingresa una nueva contraseña para tu cuenta.</p>
+    <div class="overlay">
+      <div class="reset-card">
+        <h2>REESTABLECER CONTRASEÑA</h2>
+        <p class="description">Ingresa tu nueva contraseña para continuar.</p>
 
-      <form @submit.prevent="submit">
-        <input v-model="email" type="email" placeholder="Correo electrónico" required />
+        <form @submit.prevent="submit">
+          <input v-model="email" type="email" placeholder="Correo electrónico" required />
+          <input v-model="password" type="password" placeholder="Nueva contraseña" required />
+          <input v-model="password_confirmation" type="password" placeholder="Confirmar contraseña" required />
+          <button type="submit">GUARDAR</button>
+        </form>
 
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Nueva contraseña"
-          required
-        />
-
-        <input
-          v-model="password_confirmation"
-          type="password"
-          placeholder="Confirmar contraseña"
-          required
-        />
-
-        <button type="submit">Guardar nueva contraseña</button>
-      </form>
-
-      <p v-if="message" class="success">{{ message }}</p>
-      <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="message" class="success">{{ message }}</p>
+        <p v-if="error" class="error">{{ error }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -71,31 +60,43 @@ export default {
 <style scoped>
 .reset-container {
   min-height: 100vh;
+  background-image: url('http://127.0.0.1:8000/storage/images/hero5.jpg');
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f3f4f6;
-  padding: 1.5rem;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  backdrop-filter: brightness(0.6) blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
 
 .reset-card {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.9);
   padding: 2.5rem;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   max-width: 460px;
   width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   text-align: center;
 }
 
 h2 {
-  color: #4f46e5;
-  margin-bottom: 0.75rem;
+  font-size: 1.8rem;
+  color: #111;
+  margin-bottom: 0.8rem;
 }
 
 .description {
+  color: #555;
   font-size: 0.95rem;
-  color: #6b7280;
   margin-bottom: 1.5rem;
 }
 
@@ -110,22 +111,23 @@ input {
   font-size: 1rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
+  background-color: #fff;
 }
 
 button {
   padding: 0.75rem;
-  background-color: #4f46e5;
+  background-color: black;
   color: white;
-  border: none;
-  border-radius: 8px;
   font-weight: bold;
   font-size: 1rem;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #4338ca;
+  background-color: #222;
 }
 
 .success {
@@ -138,5 +140,38 @@ button:hover {
   margin-top: 1rem;
   color: red;
   font-size: 0.95rem;
+}
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .left-section, .right-section {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  .main-image {
+    height: 200px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    width: 95%;
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .main-image {
+    height: 120px;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  input, button, .register-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
 }
 </style>

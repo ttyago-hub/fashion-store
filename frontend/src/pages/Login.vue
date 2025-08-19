@@ -1,17 +1,45 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h2>Iniciar sesión</h2>
-      <form @submit.prevent="login">
-        <input v-model="email" type="email" placeholder="Correo electrónico" required />
-        <input v-model="password" type="password" placeholder="Contraseña" required />
+  <div class="auth-container">
+    <div class="auth-left">
+      <img src="http://127.0.0.1:8000/storage/images/hero2.jpg" alt="Fashion" class="auth-image" />
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <h2>INICIA SESIÓN</h2>
+        
+        <!-- Mensaje de estado -->
+        <div v-if="message" :class="['message', messageType]">
+          {{ message }}
+        </div>
+        
+        <form @submit.prevent="login">
+          <input 
+            v-model="email" 
+            type="email" 
+            placeholder="Correo electrónico" 
+            :disabled="isLoading"
+            required 
+          />
+          <input 
+            v-model="password" 
+            type="password" 
+            placeholder="Contraseña" 
+            :disabled="isLoading"
+            required 
+          />
 
-        <router-link to="/forgot-password" class="forgot-link">
-          ¿Olvidaste tu contraseña?
-        </router-link>
+          <router-link to="/forgot-password" class="forgot-link">
+            ¿Olvidaste tu contraseña?
+          </router-link>
 
-        <button type="submit">Entrar</button>
-      </form>
+          <button type="submit" :disabled="isLoading">
+            <span v-if="isLoading">Iniciando sesión... ⏳</span>
+            <span v-else>INICIAR SESIÓN</span>
+          </button>
+        </form>
+
+        <router-link to="/register" class="register-btn">REGÍSTRATE</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -24,38 +52,66 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      isLoading: false,
+      message: '',
+      messageType: '' // 'success' o 'error'
     }
   },
   methods: {
     async login() {
+      // Iniciar carga y limpiar mensajes
+      this.isLoading = true
+      this.message = ''
+      
       try {
+        // 🔑 Solicita el CSRF cookie antes de hacer login (ruta sin /api)
+        await api.get('http://127.0.0.1:8000/sanctum/csrf-cookie', { withCredentials: true });
         const response = await api.post('/login', {
           email: this.email,
           password: this.password
         })
 
+        // 🔧 DEBUG: Ver qué token viene del servidor
+        console.log('=== DEBUG LOGIN ===')
+        console.log('Respuesta completa del servidor:', response.data)
+        console.log('Token recibido del servidor:', response.data.token)
+
         const auth = useAuthStore()
         auth.setUser(response.data.user)
         auth.setToken(response.data.token)
 
-        alert('Bienvenido ' + response.data.user.name)
+        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('user', JSON.stringify(response.data.user))
 
-        // Redireccionar según rol
-        const role = response.data.user.role
-        if (role === 'admin') {
-          this.$router.push('/admin')
-        } else {
-          this.$router.push('/user')
-        }
+        // ✅ LOGIN EXITOSO - Mostrar mensaje de éxito
+        this.message = `¡Bienvenido ${response.data.user.name}! Redirigiendo a tu panel... 🎉`
+        this.messageType = 'success'
+        
+        // Redirigir automáticamente al dashboard correspondiente
+        setTimeout(() => {
+          this.$router.push('/dashboard')
+        }, 1500)
 
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert('Credenciales incorrectas')
-        } else {
-          alert('Error al iniciar sesión')
-        }
-        console.error(error.response?.data || error.message)
+        // ❌ LOGIN FALLIDO - Mostrar mensaje de error
+        console.error('Error de login:', error.response?.data || error.message)
+        
+        this.message = '❌ Credenciales incorrectas. Te redirigiremos al registro en 3 segundos...'
+        this.messageType = 'error'
+        
+        // Limpiar campos
+        this.email = ''
+        this.password = ''
+        
+        // Redirigir al registro después de 3 segundos
+        setTimeout(() => {
+          this.$router.push('/register')
+        }, 3000)
+        
+      } finally {
+        // Detener carga
+        this.isLoading = false
       }
     }
   }
@@ -63,77 +119,145 @@ export default {
 </script>
 
 <style scoped>
-.login-container {
-  min-height: 100vh;
-  background-color: #f3f4f6;
+.auth-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-   /* Fondo con logo */
-  background-image: url('public/');  /* Ajusta la ruta si es otra */
-  background-repeat: no-repeat;
-  background-position: center top; /* o center center según prefieras */
-  background-size: 1400px 700px; /* tamaño del logo */
-  background-attachment: fixed;
+  height: 100vh;
 }
 
-.login-card {
-  background-color: white;
-  padding: 2.5rem;
-  border-radius: 10px;
+.auth-left {
+  flex: 1;
+}
+
+.auth-image {
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  height: 100%;
+  object-fit: cover;
 }
 
-h2 {
-  margin-bottom: 2rem;
-  color: #4f46e5;
+.auth-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.auth-form {
+  width: 80%;
+  max-width: 400px;
+}
+
+.auth-form h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #111;
 }
 
 input {
   width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1.2rem;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
 }
 
+input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Mensajes de estado */
+.message {
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.message.success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
 button {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #4f46e5;
+  padding: 0.8rem;
+  background: black;
   color: white;
-  border: none;
   font-weight: bold;
+  border: none;
   border-radius: 6px;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: opacity 0.3s ease;
 }
 
-button:hover {
-  background-color: #4338ca;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Estilo mejorado para el enlace "¿Olvidaste tu contraseña?" */
-.forgot-link {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  color: #4f46e5;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.forgot-link:hover,
-.forgot-link:focus {
-  color: #4338ca;
-  outline: none;
+.register-btn {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  padding: 0.8rem;
+  border: 1px solid black;
+  border-radius: 6px;
+  color: black;
   text-decoration: none;
+  font-weight: bold;
+}
+
+.forgot-link {
+  display: block;
+  margin-bottom: 1rem;
+  text-align: right;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .auth-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .auth-left, .auth-right {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  .auth-image {
+    height: 200px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-form {
+    width: 95%;
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .auth-image {
+    height: 120px;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  input, button, .register-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
 }
 </style>
